@@ -365,6 +365,7 @@ module.exports = function (grunt) {
           '<%= yeoman.app %>/lib/ionic/release/js/ionic.js',
           '<%= yeoman.app %>/lib/ionic/release/js/ionic-angular.js',
           '<%= yeoman.app %>/lib/angular-mocks/angular-mocks.js',
+					'<%= yeoman.app %>/lib/ngCordova/dist/ng-cordova-mocks.js',
           '<%= yeoman.app %>/<%= yeoman.scripts %>/**/*.js',
           'test/mock/**/*.js',
           'test/spec/**/*.js'
@@ -395,7 +396,46 @@ module.exports = function (grunt) {
         singleRun: true,
       }
     },
-
+		replace: {
+		  production: {
+		    src: [
+		      '<%= yeoman.app %>/index.html',
+		      '<%= yeoman.app %>/<%= yeoman.scripts %>/app.js'
+		    ],
+		    overwrite: true,
+		    replacements:[
+		      { from: 'lib/ngCordova/dist/ng-cordova-mocks.js', to: 'lib/ngCordova/dist/ng-cordova.js' },
+		      { from: '\'ngCordovaMocks\'', to: '\'ngCordova\'' }
+		    ]
+		  },
+		  development: {
+		    src: [
+		      '<%= yeoman.app %>/index.html',
+		      '<%= yeoman.app %>/<%= yeoman.scripts %>/app.js'
+		    ],
+		    overwrite: true,
+		    replacements:[
+		      { from: 'lib/ngCordova/dist/ng-cordova.js', to: 'lib/ngCordova/dist/ng-cordova-mocks.js' },
+		      { from: '\'ngCordova\'', to: '\'ngCordovaMocks\'' }
+		    ]
+		  }
+		},
+    protractor_webdriver: {
+      all: {
+        command: 'webdriver-manager start'
+      }
+    },
+    protractor: {
+      options: {
+        keepAlive: true, // If false, the grunt process stops when the test fails.
+        noColor: false // If true, protractor will not use colors in its output.
+      },
+      all: {
+        options: {
+          configFile: 'test/protractor-conf.js'
+        }
+      }
+    },
     // ngAnnotate tries to make the code safe for minification automatically by
     // using the Angular long form for dependency injection.
     ngAnnotate: {
@@ -436,6 +476,8 @@ module.exports = function (grunt) {
       });
     });
   });
+	
+	grunt.loadNpmTasks('grunt-protractor-webdriver');
 
   // Since Apache Ripple serves assets directly out of their respective platform
   // directories, we watch all registered files and then copy all un-built assets
@@ -491,9 +533,11 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', [
+		'replace:development',
     'clean',
     'concurrent:test',
     'autoprefixer',
+		'karma',
     'karma:unit:start',
     'watch:karma'
   ]);
@@ -504,7 +548,7 @@ module.exports = function (grunt) {
     }
 
     grunt.config('concurrent.ionic.tasks', ['ionic:serve', 'watch']);
-    grunt.task.run(['init', 'concurrent:ionic']);
+    grunt.task.run(['init-development', 'concurrent:ionic']);
   });
   grunt.registerTask('emulate', function() {
     grunt.config('concurrent.ionic.tasks', ['ionic:emulate:' + this.args.join(), 'watch']);
@@ -519,8 +563,18 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('init', [
+		'replace:production',
     'clean',
-    'ngconstant:development',
+    'wiredep',
+    'concurrent:server',
+    'autoprefixer',
+    'newer:copy:app',
+    'newer:copy:tmp'
+  ]);
+
+  grunt.registerTask('init-development', [
+		'replace:development',
+    'clean',
     'wiredep',
     'concurrent:server',
     'autoprefixer',
@@ -531,7 +585,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('compress', [
     'clean',
-    'ngconstant:production',
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
@@ -543,6 +596,12 @@ module.exports = function (grunt) {
     'uglify',
     'usemin',
     'htmlmin'
+  ]);
+	
+  grunt.registerTask('test_e2e', [
+		'replace:development',
+    'protractor_webdriver',
+    'protractor'
   ]);
 
   grunt.registerTask('coverage', ['karma:continuous', 'connect:coverage:keepalive']);

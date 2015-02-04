@@ -8,6 +8,7 @@
     <!-- build:css styles/vendor.css -->
     <!-- <link rel="stylesheet" href="vendor/some.contrib.css"> -->
     <!-- bower:css -->
+    <link rel="stylesheet" href="lib/ionic/release/css/ionic.css" />
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -35,12 +36,19 @@
     <!-- build:js scripts/vendor.js -->
     <!-- <script src="vendor/someContribJs.js"></script> -->
     <!-- bower:js -->
+    <script src="lib/angular/angular.js"></script>
+    <script src="lib/angular-animate/angular-animate.js"></script>
+    <script src="lib/angular-sanitize/angular-sanitize.js"></script>
+    <script src="lib/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="lib/collide/collide.js"></script>
+    <script src="lib/ionic/release/js/ionic.js"></script>
+    <script src="lib/ionic/release/js/ionic-angular.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
-
-    <!-- cordova script (this will be a 404 during development) -->
-    <script src="cordova.js"></script>
-
+		
+		<script src="lib/ngCordova/dist/ng-cordova-mocks.js"></script>
+		    <!-- cordova script (this will be a 404 during development) -->
+				<script src="cordova.js"></script>
 
         <!-- build:js scripts/scripts.js -->
         <script src="scripts/config.js"></script>
@@ -48,5 +56,6 @@
         <script src="scripts/controllers.js"></script>
         <script src="scripts/services.js"></script>
         <!-- endbuild -->
+				
 </body>
 </html>
